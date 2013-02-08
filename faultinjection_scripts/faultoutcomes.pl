@@ -30,48 +30,124 @@ sub calculate_outcome
 	chomp @hangs;
 	foreach $hangid (@hangs){
 		push(@hang_index_array, $hangid);
+		print "$hangid is a HANG\n";
 	}
+	###################################################################
+	#new output analysis code, Qining
+	open BASELINE, "< $golden_output", or die "cant open original baseline outputfile\n";
+	@original_baseline = <BASELINE>;
+	close BASELINE;
+	#print @original_baseline;
+	my @choped_baseline = ();
+	for($i = 0; $i < scalar(@original_baseline); $i++)
+	{
+		if(!($original_baseline[$i] =~ m/spawn/ || $original_baseline[$i] =~ m/ssh-linux/ || $original_baseline[$i] =~ m/Last login:/ || $original_faulty[$i] =~ m/exit/ || $original_baseline[$i] =~ m/> ls/))
+		{
+			push(@choped_baseline, $original_baseline[$i]);
+		}
+	}
+	##chomp @choped_baseline;
+	##print @choped_baseline;
+	#here we've got base_line list
 	foreach $o (@output)
 	{
-		if($o =~ /(input\d+\.faultyoutput\.)(\d+)(\.txt)/){
+		if($o =~ /(input\d+\.faultyoutput\.)(\d+)(\.txt)/)
+		{
 			$index = $2;
 			push(@output_index,$index);
+			if($index ~~ @hangs)
+			{
+				next; #if the fault causes timeout, we skip it because it has already be processed
+			}
 		}
-
-		system("cmp $golden_output $output_dir/$o > $cmpfile 2>&1"); 
-		if($o =~ /(input\d+\.faultyoutput\.)(\d+)(\.txt)/){
-			$index = $2; 
+		open FAULTYOUTPUT, "< $output_dir/$o", or die "cant open original baseline outputfile\n";
+		@original_faulty = <FAULTYOUTPUT>;
+		close FAULTYOUTPUT;
+		my @choped_faulty = ();
+		for($i = 0; $i < scalar(@original_faulty); $i++)
+		{
+			if(!($original_faulty[$i] =~ m/spawn/ || $original_faulty[$i] =~ m/ssh-linux/ || $original_faulty[$i] =~ m/Last login:/ || $original_faulty[$i] =~ m/exit/ || $original_baseline[$i] =~ m/> ls/))
+			{
+				push(@choped_faulty, $original_faulty[$i]);
+			}
 		}
-		open CMP, "< $cmpfile";
-		@cmp = <CMP>;
-		close CMP;
-		chomp @cmp;
-		if(-z $cmpfile){
-			#benign
-			push(@benign_index_array, $index);
-			
+		##chomp @choped_faulty;
+		##print @choped_faulty;
+		#here we've got one faulty list
+		if(!(@choped_faulty[scalar(@choped_faulty)-2,scalar(@choped_faulty)-1] ~~ @choped_baseline[scalar(@choped_baseline)-2,scalar(@choped_baseline)-1]))
+		{
+			push(@crash_index_array, $index); # Crash
+			print "$index is a CRASH\n";
+			next;
 		}
-		elsif(grep(/EOF/, @cmp)){
-			#crash
-			push(@crash_index_array, $index);
-			
+		if(!(@choped_faulty ~~ @choped_baseline))
+		{
+			push(@sdc_index_array, $index); # SDC
+			print "$index is a SDC\n";
+			next;
 		}
-		else {
-			push(@sdc_index_array, $index);
-			
-		}
+		push(@benign_index_array, $index); # Benign
+		print "$index is a BENIGN\n";
 	}
-	if(scalar(@output_index)){
-		for($i=0; $i < $num_fi; $i++){
-			$found =0;
-			foreach $index (@output_index){
-				if($index == $i) { $found = 1; last;}
-			}
-			if($found == 0){
-				push(@crash_index_array, $i);
-			}
-		}	
-	}	
+	#if there are any execution without output files
+	 if(scalar(@output_index))
+	 {
+		 for($i=0; $i < $num_fi; $i++)
+		 {
+			 $found =0;
+			 foreach $index (@output_index)
+			 {
+				 if($index == $i) { $found = 1; last;}
+			 }
+			 if($found == 0)
+			 {
+				 push(@crash_index_array, $i);
+			 }
+		 }	
+	 }
+	#new code ends
+	###################################################################
+	#~ foreach $o (@output)
+	#~ {
+		#~ if($o =~ /(input\d+\.faultyoutput\.)(\d+)(\.txt)/){
+			#~ $index = $2;
+			#~ push(@output_index,$index);
+		#~ }
+#~ 
+		#~ system("cmp $golden_output $output_dir/$o > $cmpfile 2>&1"); 
+		#~ if($o =~ /(input\d+\.faultyoutput\.)(\d+)(\.txt)/){
+			#~ $index = $2; 
+		#~ }
+		#~ open CMP, "< $cmpfile";
+		#~ @cmp = <CMP>;
+		#~ close CMP;
+		#~ chomp @cmp;
+		#~ if(-z $cmpfile){
+			#~ #benign
+			#~ push(@benign_index_array, $index);
+			#~ 
+		#~ }
+		#~ elsif(grep(/EOF/, @cmp)){
+			#~ #crash
+			#~ push(@crash_index_array, $index);
+			#~ 
+		#~ }
+		#~ else {
+			#~ push(@sdc_index_array, $index);
+			#~ 
+		#~ }
+	#~ }
+	#~ if(scalar(@output_index)){
+		#~ for($i=0; $i < $num_fi; $i++){
+			#~ $found =0;
+			#~ foreach $index (@output_index){
+				#~ if($index == $i) { $found = 1; last;}
+			#~ }
+			#~ if($found == 0){
+				#~ push(@crash_index_array, $i);
+			#~ }
+		#~ }	
+	#~ }	
 
 	print OUTPUT_FILE "\nSDC INDEX\n";
 	print OUTPUT_FILE "@sdc_index_array";
