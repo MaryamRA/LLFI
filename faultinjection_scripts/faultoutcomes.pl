@@ -41,7 +41,17 @@ sub calculate_outcome
 	my @choped_baseline = ();
 	for($i = 0; $i < scalar(@original_baseline); $i++)
 	{
-		if(!($original_baseline[$i] =~ m/spawn/ || $original_baseline[$i] =~ m/ssh-linux/ || $original_baseline[$i] =~ m/Last login:/ || $original_faulty[$i] =~ m/exit/ || $original_baseline[$i] =~ m/> ls/))
+		if(!($original_baseline[$i] =~ m/spawn/ || 
+			$original_baseline[$i] =~ m/\d+\:\d+\:\d+/ || 
+			$original_baseline[$i] =~ m/users,  load/ || 
+			$original_baseline[$i] =~ m/\d++ total/ || 
+			$original_baseline[$i] =~ m/\'arpa\'/ || 
+			$original_baseline[$i] =~ m/\'validate\'/ || 
+			$original_baseline[$i] =~ m/Did you know you can/ ||
+			$original_baseline[$i] =~ m/\/\@/ ||
+			$original_baseline[$i] =~ m/\/E/ ||
+			$original_baseline[$i] =~ m/\/G/ ||
+			$original_baseline[$i] =~ m/\/R/))
 		{
 			push(@choped_baseline, $original_baseline[$i]);
 		}
@@ -66,7 +76,17 @@ sub calculate_outcome
 		my @choped_faulty = ();
 		for($i = 0; $i < scalar(@original_faulty); $i++)
 		{
-			if(!($original_faulty[$i] =~ m/spawn/ || $original_faulty[$i] =~ m/ssh-linux/ || $original_faulty[$i] =~ m/Last login:/ || $original_faulty[$i] =~ m/exit/ || $original_baseline[$i] =~ m/> ls/))
+			if(!($original_faulty[$i] =~ m/spawn/ || 
+			$original_faulty[$i] =~ m/\d+\:\d+\:\d+/ || 
+			$original_faulty[$i] =~ m/users,  load/ || 
+			$original_faulty[$i] =~ m/\d++ total/ || 
+			$original_faulty[$i] =~ m/\'arpa\'/ || 
+			$original_faulty[$i] =~ m/\'validate\'/ || 
+			$original_faulty[$i] =~ m/Did you know you can/ ||
+			$original_faulty[$i] =~ m/\/\@/ ||
+			$original_faulty[$i] =~ m/\/E/ ||
+			$original_faulty[$i] =~ m/\/G/ ||
+			$original_faulty[$i] =~ m/\/R/))
 			{
 				push(@choped_faulty, $original_faulty[$i]);
 			}
