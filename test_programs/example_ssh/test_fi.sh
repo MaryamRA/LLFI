@@ -25,6 +25,6 @@ expect {
 
 while {1} {
 	expect {
-		"Thank you"	{break}
+		"Connection to sdf.org closed."	{break}
 	}
 }
