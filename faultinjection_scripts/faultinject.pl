@@ -147,7 +147,15 @@ sub runFaultInjection
 		$run = $num_branch_bs;
 		#$dir_output = $dir_output_bs;	
 	}
-	system("llvm-gcc -emit-llvm -DNO_STDOUTPUT $fi_randomc -S -o $fi_randombc"); 
+	if($run_in_script == 1)
+	{
+		system("llvm-gcc -emit-llvm -DNO_STDOUTPUT $fi_randomc -S -o $fi_randombc"); 
+	}
+	else
+	{
+		system("llvm-gcc -emit-llvm $fi_randomc -S -o $fi_randombc"); 
+	}
+	
 	system("llvm-link $fifile $fi_randombc -o $linkedfifile");
 	#system("llc $linkedfifile -o $linkedfifile.s");
 	#system("gcc $LDFLAGS $LIBS $linkedfifile.s -o $linkedfifile.native");
