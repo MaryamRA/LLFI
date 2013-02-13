@@ -27,6 +27,6 @@ expect {
 
 while {1} {
 	expect {
-		"Connection to sdf.org closed."	{break}
+		eof	{break}
 	}
 }
