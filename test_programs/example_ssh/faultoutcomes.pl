@@ -41,10 +41,14 @@ sub calculate_outcome
 	my @choped_baseline = ();
 	for($i = 0; $i < scalar(@original_baseline); $i++)
 	{
+		if($i>=12 and $i<=50)
+		{
+			next;
+		}
 		if(!($original_baseline[$i] =~ m/spawn/ || 
 			$original_baseline[$i] =~ m/\d+\:\d+\:\d+/ || 
 			$original_baseline[$i] =~ m/users,  load/ || 
-			$original_baseline[$i] =~ m/\d++ total/ || 
+			$original_baseline[$i] =~ m/\d+ total/ || 
 			$original_baseline[$i] =~ m/\'arpa\'/ || 
 			$original_baseline[$i] =~ m/\'validate\'/ || 
 			$original_baseline[$i] =~ m/Did you know you can/ ||
@@ -76,10 +80,14 @@ sub calculate_outcome
 		my @choped_faulty = ();
 		for($i = 0; $i < scalar(@original_faulty); $i++)
 		{
+			if($i>=12 and $i<=50)
+			{
+				next;
+			}
 			if(!($original_faulty[$i] =~ m/spawn/ || 
 			$original_faulty[$i] =~ m/\d+\:\d+\:\d+/ || 
 			$original_faulty[$i] =~ m/users,  load/ || 
-			$original_faulty[$i] =~ m/\d++ total/ || 
+			$original_faulty[$i] =~ m/\d+ total/ || 
 			$original_faulty[$i] =~ m/\'arpa\'/ || 
 			$original_faulty[$i] =~ m/\'validate\'/ || 
 			$original_faulty[$i] =~ m/Did you know you can/ ||

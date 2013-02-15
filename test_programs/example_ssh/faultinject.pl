@@ -56,8 +56,8 @@ elsif($run_in_script == 0)
 {
 	print "Application runs directly\n";
 	$exec_baseline = "lli $cleanexec";
-	$exec_prof = "lli $linkedprofile";
-	$exec_fi = "lli $linkedfifile";
+	$exec_prof = "lli $linkedproffile_bs";
+	$exec_fi = "lli $linkedfaultinjectfile_bs";
 }
 
 
@@ -155,7 +155,6 @@ sub runFaultInjection
 	{
 		system("llvm-gcc -emit-llvm $fi_randomc -S -o $fi_randombc"); 
 	}
-	
 	system("llvm-link $fifile $fi_randombc -o $linkedfifile");
 	#system("llc $linkedfifile -o $linkedfifile.s");
 	#system("gcc $LDFLAGS $LIBS $linkedfifile.s -o $linkedfifile.native");
